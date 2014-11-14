@@ -44,13 +44,16 @@ module.exports.parseData = function(dataString, parseConfig, dataDefs) {
     var seriesName = s.match(parseConfig.seriesName)[0];
     var dataDef = dataDefs[seriesName];
     var columns = (dataDef && dataDef.columns) || ['time', 'line'];
-    var dataType = (dataDef && dataDef.dataType) || parseInt;
+    var dataTypes = (dataDef && dataDef.dataTypes) || [parseInt, parseInt];
     var dataPoints = s.match(parseConfig.dataPoints);
 
     dataPoints = _.map(dataPoints, function(p) {
-      return _.map(p.match(/[\w\.-]+/g), function(s) {
-        return dataType(s);
-      });
+      var typed = []
+      var m = p.match(/[\w\.-]+/g);
+      for (var i=0;i<m.length;i++) {
+        typed.push(dataTypes[i](m[i]));
+      }
+      return typed;
     });
 
     return {

@@ -7,7 +7,7 @@ describe('parse_dataString', function() {
 
   it('should parse a dataString to a javascript object', function(done) {
     var testString = 'SensorX (1415707255749 12) (1415707255759 13) (1415707255809 15)\n' +
-                     'SensorY (1415707255743 23.356)\n' +
+                     'SensorY (1415707255743 23.356 12)\n' +
                      'SensorZ (1415707255748 400) (1415707255799 600)';
     var parserConfig = {
       chunk: /[^\n]+/g,
@@ -16,10 +16,9 @@ describe('parse_dataString', function() {
     };
     var sensors = {
       sensorschmensor: {
-        dataType: parseInt,
       },
       SensorY: {
-        dataType: parseFloat,
+        dataTypes: [parseInt, parseFloat, parseInt],
       }
     }; 
 
@@ -37,7 +36,7 @@ describe('parse_dataString', function() {
         name: 'SensorY',
         columns: ['time', 'line'],
         points: [
-          [1415707255743, 23.356]
+          [1415707255743, 23.356, 12]
         ]
       },
       {

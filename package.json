@@ -12,7 +12,7 @@
     "should": "~4.1.0"
   },
   "scripts": {
-    "test-debug": "node-debug -p 8081 mocha",
+    "test-debug": "node-debug -p 8081 _mocha",
     "test": "mocha"
   },
   "author": "",
