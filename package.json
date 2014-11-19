@@ -4,6 +4,7 @@
   "description": "A collection of helper functions around data parsing and transformation",
   "main": "index.js",
   "dependencies": {
+    "MD5": "~1.2.1",
     "underscore": "~1.7.0",
     "winston": "^0.8.1"
   },

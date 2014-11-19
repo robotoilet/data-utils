@@ -1,6 +1,11 @@
 var logger = require('./logger')
+  , md5 = require('MD5');
   , _ = require('underscore');
 
+
+module.exports.verifyData = function(md5sum, s) {
+  return md5(s) === md5sum;
+}
 
 // Parse a string using regular expression 'recipes' from the configuration
 // and simple basic rules:
