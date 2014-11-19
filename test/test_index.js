@@ -14,15 +14,17 @@ describe('parse_dataString', function() {
       seriesName: /^[^\(\s]+/,
       dataPoints: /\(([^)]+)/g
     };
-    var sensors = {
-      sensorschmensor: {
+    var series = {
+      defaultSeries: {
+        columns: ['time', 'line'],
+        dataTypes: [parseInt, parseInt]
       },
       SensorY: {
         dataTypes: [parseInt, parseFloat, parseInt],
       }
     }; 
 
-    parseData(testString, parserConfig, sensors).should.eql([
+    parseData(testString, parserConfig, series).should.eql([
       {
         name: 'SensorX',
         columns: ['time', 'line'],

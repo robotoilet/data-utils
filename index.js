@@ -42,9 +42,10 @@ module.exports.parseData = function(dataString, parseConfig, dataDefs) {
 
   function buildObject(s) {
     var seriesName = s.match(parseConfig.seriesName)[0];
-    var dataDef = dataDefs[seriesName];
-    var columns = (dataDef && dataDef.columns) || ['time', 'line'];
-    var dataTypes = (dataDef && dataDef.dataTypes) || [parseInt, parseInt];
+    var defaults = dataDefs['defaultSeries'];
+    var dataDef = dataDefs[seriesName] || defaults;
+    var columns = dataDef.columns || defaults.columns;
+    var dataTypes = dataDef.dataTypes || defaults.columns;
     var dataPoints = s.match(parseConfig.dataPoints);
 
     dataPoints = _.map(dataPoints, function(p) {
