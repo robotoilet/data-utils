@@ -1,5 +1,5 @@
 var logger = require('./logger')
-  , md5 = require('MD5');
+  , md5 = require('MD5')
   , _ = require('underscore');
 
 
