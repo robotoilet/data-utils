@@ -13,18 +13,23 @@ describe('parse_dataString', function() {
 
 
   it('should parse a dataString to a javascript object', function(done) {
-    var testString = 'SensorX (1415707255749 12) (1415707255759 13) (1415707255809 15)\n' +
-                     'SensorY (1415707255743 23.356 12)\n' +
-                     'SensorZ (1415707255748 400) (1415707255799 600)';
+    var testString = '(a 1415707255 12)(a 1415707255 13)' +
+                     '(a 1415707255 15)(b 1415707255 23.356 12)' +
+                     '(c 1415707255 400)(c 1415707255 600)';
     var parserConfig = {
       chunk: /[^\n]+/g,
-      seriesName: /^[^\(\s]+/,
       dataPoints: /\(([^)]+)/g
     };
     var series = {
       defaultSeries: {
         columns: ['time', 'line'],
         dataTypes: [parseInt, parseInt]
+      },
+      sensorMap: {
+        a: 'SensorX',
+        b: 'SensorY',
+        c: 'SensorZ',
+        d: 'sensorschmensor'
       },
       SensorY: {
         dataTypes: [parseInt, parseFloat, parseInt],
@@ -36,24 +41,24 @@ describe('parse_dataString', function() {
         name: 'SensorX',
         columns: ['time', 'line'],
         points: [
-          [1415707255749, 12],
-          [1415707255759, 13],
-          [1415707255809, 15]
+          [1415707255, 12],
+          [1415707255, 13],
+          [1415707255, 15]
         ]
       },
       {
         name: 'SensorY',
         columns: ['time', 'line'],
         points: [
-          [1415707255743, 23.356, 12]
+          [1415707255, 23.356, 12]
         ]
       },
       {
         name: 'SensorZ',
         columns: ['time', 'line'],
         points: [
-          [1415707255748, 400],
-          [1415707255799, 600]
+          [1415707255, 400],
+          [1415707255, 600]
         ]
       }
     ]);

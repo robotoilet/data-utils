@@ -17,22 +17,12 @@ module.exports.verifyData = function(checksum, s) {
   return checksum === module.exports.checkchecksum(s);
 };
 
-// Parse a string using regular expression 'recipes' from the configuration
-// and simple basic rules:
-// -> the data has to be chunked into named series
-// -> each series chunk has to have a name and only one
-//    (A string can have repeated series with the same name though)
-// -> each series chunk can have an arbitrary amount of data points
-// -> a data point has to start with a timestamp followed by n values,
-//    each item matchable by [\w\.-]+, hence separators can be any
-//    non-alphanumeric character excluding '_', '-' and '.'.
-//
 // parseConfig: an Object holding regular expressions for
 //  - getting each chunk out of the string
-//  - getting one name (== identifier for this chunk) out of each chunk
-//  - getting an arbitrary amount of datapoints out of each chunk
+//  - getting an arbitrary amount of datapoints out of each chunk holding
+//    name, timestamp and values
 //
-// dataDefs: once a series name is found, it expected format will be looked
+// dataDefs: once a series name is found, its expected format will be looked
 //           up here:
 //  {
 //    <seriesName>: {
@@ -55,31 +45,41 @@ module.exports.verifyData = function(checksum, s) {
 module.exports.parseData = function(dataString, parseConfig, dataDefs) {
   var chunks = dataString.match(parseConfig.chunk);
 
-  function buildObject(s) {
-    var seriesName = s.match(parseConfig.seriesName)[0];
-    var defaults = dataDefs['defaultSeries'];
-    var dataDef = dataDefs[seriesName] || defaults;
-    var columns = dataDef.columns || defaults.columns;
-    var dataTypes = dataDef.dataTypes || defaults.columns;
+  var defaults = dataDefs['defaultSeries']; // defaults for all series
+
+  // per chunk, all data in one point:
+  function convert(s) {
+    var series = {};
+
     var dataPoints = s.match(parseConfig.dataPoints);
 
-    dataPoints = _.map(dataPoints, function(p) {
-      var typed = []
-      var m = p.match(/[\w\.-]+/g);
-      for (var i=0;i<m.length;i++) {
-        typed.push(dataTypes[i](m[i]));
-      }
-      return typed;
+    dataPoints.forEach(function(p) {
+      var elems = p.split(' ');
+      elems = elems.map(function(s){ return s.replace(/[^\w\.-]/g, '')});
+
+      var sName = dataDefs.sensorMap[elems[0]];
+      var points = elems.slice(1, elems.length);
+
+      series[sName] = series[sName] || { name: sName, points: [] };
+      series[sName].points.push(points);
     });
 
-    return {
-      name: seriesName,
-      columns: columns,
-      points: dataPoints
-    };
+    sNames = Object.keys(series);
+    for (var name in sNames) {
+      var seriesName = sNames[name];
+      var dataDef = dataDefs[seriesName] || defaults;
+      series[seriesName].columns = dataDef.columns || defaults.columns;
+      var dataTypes = dataDef.dataTypes || defaults.dataTypes;
+      _.each(series[seriesName].points, function(point) {
+        for (var e=0;e<point.length;e++) {
+          point[e] = dataTypes[e](point[e]);
+        }
+      });
+    }
+    return _.map(sNames, function(x){ return series[x] });
   }
 
-  return _.map(chunks, buildObject);
+  return _.reduce(chunks, function(m, v) { return m.concat(convert(v)); }, []);
 };
 
 function validateData(objArray) {
