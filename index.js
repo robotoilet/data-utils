@@ -3,15 +3,19 @@ var logger = require('./logger')
   , _ = require('underscore');
 
 
-module.exports.verifyData = function(checksum, s) {
+module.exports.checkchecksum = function(s) {
   var csMethod = config.checksums[config.checksums.inUse];
   var bytesum = _.reduce(s, function(m, c){ return m + c.charCodeAt()}, 0);
   var last10chars = s.slice(s.length - csMethod.lastNchars,
                             s.length);
   var bytesumDiff = csMethod.bytesumLength - ("" + bytesum).length;
   var filler = Array(bytesumDiff + 1).join(csMethod.filler);
-  return checksum === ("" + bytesum + filler + last10chars);
-}
+  return "" + bytesum + filler + last10chars;
+};
+
+module.exports.verifyData = function(checksum, s) {
+  return checksum === module.exports.checkchecksum(s);
+};
 
 // Parse a string using regular expression 'recipes' from the configuration
 // and simple basic rules:
@@ -76,7 +80,7 @@ module.exports.parseData = function(dataString, parseConfig, dataDefs) {
   }
 
   return _.map(chunks, buildObject);
-}
+};
 
 function validateData(objArray) {
 }
@@ -98,4 +102,4 @@ module.exports.namespace = function(keys, prefix, objArray) {
     }
     return newObj;
   });
-}
+};
