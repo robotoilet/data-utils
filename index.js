@@ -1,10 +1,16 @@
 var logger = require('./logger')
-  , md5 = require('MD5')
+  , config = require('iol_conf')
   , _ = require('underscore');
 
 
-module.exports.verifyData = function(md5sum, s) {
-  return md5(s) === md5sum;
+module.exports.verifyData = function(checksum, s) {
+  var csMethod = config.checksums[config.checksums.inUse];
+  var bytesum = _.reduce(s, function(m, c){ return m + c.charCodeAt()}, 0);
+  var last10chars = s.slice(s.length - csMethod.lastNchars,
+                            s.length);
+  var bytesumDiff = csMethod.bytesumLength - ("" + bytesum).length;
+  var filler = Array(bytesumDiff + 1).join(csMethod.filler);
+  return checksum === ("" + bytesum + filler + last10chars);
 }
 
 // Parse a string using regular expression 'recipes' from the configuration

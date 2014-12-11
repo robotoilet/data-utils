@@ -1,6 +1,13 @@
 var should = require('should')
+  , verifyData = require('../index').verifyData
   , parseData = require('../index').parseData
   , namespace = require('../index').namespace;
+
+
+describe('verify_data', function() {
+  var testString = 'abcdefghijklmnop';
+  verifyData('1672::ghijklmnop', testString).should.be.true;
+});
 
 describe('parse_dataString', function() {
 
