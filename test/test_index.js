@@ -32,6 +32,7 @@ describe('parse_dataString', function() {
         d: 'sensorschmensor'
       },
       SensorY: {
+        columns: ['time', 'x', 'y'],
         dataTypes: [parseInt, parseFloat, parseInt],
       }
     }; 
@@ -48,7 +49,7 @@ describe('parse_dataString', function() {
       },
       {
         name: 'SensorY',
-        columns: ['time', 'line'],
+        columns: ['time', 'x', 'y'],
         points: [
           [1415707255, 23.356, 12]
         ]

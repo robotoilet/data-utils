@@ -45,32 +45,36 @@ module.exports.verifyData = function(checksum, s) {
 module.exports.parseData = function(dataString, parseConfig, dataDefs) {
   var chunks = dataString.match(parseConfig.chunk);
 
-  var defaults = dataDefs['defaultSeries']; // defaults for all series
-
-  // per chunk, all data in one point:
-  function convert(s) {
+  function parseChunk(s) {
     var series = {};
-
     var dataPoints = s.match(parseConfig.dataPoints);
-
     dataPoints.forEach(function(p) {
       var elems = p.split(' ');
       elems = elems.map(function(s){ return s.replace(/[^\w\.-]/g, '')});
-
       var sName = dataDefs.sensorMap[elems[0]];
       var points = elems.slice(1, elems.length);
-
       series[sName] = series[sName] || { name: sName, points: [] };
       series[sName].points.push(points);
     });
+    return series;
+  }
 
+  var defaults = dataDefs['defaultSeries']; // defaults for all series
+
+  function validateChunk(series) {
     sNames = Object.keys(series);
     for (var name in sNames) {
       var seriesName = sNames[name];
       var dataDef = dataDefs[seriesName] || defaults;
       series[seriesName].columns = dataDef.columns || defaults.columns;
       var dataTypes = dataDef.dataTypes || defaults.dataTypes;
+      if (series[seriesName].columns.length !== dataTypes.length) {
+        throw new Error("Configuration error for series " + seriesName + " (different length of columns and dataTypes)");
+      }
       _.each(series[seriesName].points, function(point) {
+        if (point.length != series[seriesName].columns.length) {
+          throw new Error("Validation error for datapoint " + point + "(different length of point and columns in config)");
+        }
         for (var e=0;e<point.length;e++) {
           point[e] = dataTypes[e](point[e]);
         }
@@ -79,11 +83,15 @@ module.exports.parseData = function(dataString, parseConfig, dataDefs) {
     return _.map(sNames, function(x){ return series[x] });
   }
 
+  function convert(s) {
+    var series = parseChunk(s);
+    return validateChunk(series, defaults);
+  }
+
   return _.reduce(chunks, function(m, v) { return m.concat(convert(v)); }, []);
 };
 
-function validateData(objArray) {
-}
+
 
 // Adds a <`prefix` + '_'> to the values of all `keys` for each object in the
 // provided `objArray`.
