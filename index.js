@@ -5,12 +5,11 @@ var logger = require('./logger')
 
 module.exports.checkchecksum = function(s) {
   var csMethod = config.checksums[config.checksums.inUse];
+
+  var timestamp = s.slice(3, 13);
   var bytesum = _.reduce(s, function(m, c){ return m + c.charCodeAt()}, 0);
-  var last10chars = s.slice(s.length - csMethod.lastNchars,
-                            s.length);
-  var bytesumDiff = csMethod.bytesumLength - ("" + bytesum).length;
-  var filler = Array(bytesumDiff + 1).join(csMethod.filler);
-  return "" + bytesum + filler + last10chars;
+
+  return "" + timestamp + csMethod.filler + bytesum;
 };
 
 module.exports.verifyData = function(checksum, s) {

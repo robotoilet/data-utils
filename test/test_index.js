@@ -1,12 +1,24 @@
 var should = require('should')
+  , checkchecksum = require('../index').checkchecksum
   , verifyData = require('../index').verifyData
   , parseData = require('../index').parseData
   , namespace = require('../index').namespace;
 
 
+describe('checkchecksum', function() {
+  var data = "(a 1234567890 134 11 whatever blabla";
+  it('should return the adquate checksum for a given string', function(done) {
+    checkchecksum(data).should.equal("1234567890:2548" );
+    done();
+  });
+});
+
 describe('verify_data', function() {
-  var testString = 'abcdefghijklmnop';
-  verifyData('1672::ghijklmnop', testString).should.be.true;
+  it('should verify a given data string correctly', function(done) {
+    var data = "(a 1234567890 134 11 whatever blabla";
+    verifyData("1234567890:2548", data).should.be.true;
+    done()
+  });
 });
 
 describe('parse_dataString', function() {
